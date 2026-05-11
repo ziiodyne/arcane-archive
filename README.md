@@ -17,7 +17,7 @@ Critically, **the AI never suggests what you should do next.** Every AI-generate
 
 ## Live Demo
 
-**[Try it here →](https://YOUR_USERNAME.github.io/arcane-archive)**
+**[Try it here →](https://ziiodyne.github.io/arcane-archive)**
 
 The live demo loads a sample session automatically so you can explore the full UI without any setup. Your data stays in your browser — nothing is sent anywhere.
 
