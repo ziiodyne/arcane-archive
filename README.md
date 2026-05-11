@@ -70,7 +70,7 @@ This tool is built around three constraints:
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/arcane-archive.git
+git clone https://github.com/ziiodyne/arcane-archive.git
 cd arcane-archive
 ```
 
