@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Arcane Archive | Prototype</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/samples/arcane-archive-favicon.png">
+  <link rel="apple-touch-icon" sizes="32x32" href="assets/samples/arcane-archive-favicon.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">✦</div>
+        <div class="brand-text">
+          <div class="brand-title">Arcane Archive</div>
+          <div class="brand-sub">Prototype</div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-item active" data-view="dashboard">Dashboard</button>
+        <button class="nav-item" data-view="record">Record Session</button>
+        <button class="nav-item" data-view="session">Session View</button>
+        <button class="nav-item" data-view="search">Campaign Memory</button>
+        <button class="nav-item" data-view="settings">Settings</button>
+      </nav>
+
+
+      <!-- NEW: Sessions list -->
+      <div class="sidebar-section">
+        <div class="row" style="justify-content:space-between; align-items:center;">
+          <div class="sidebar-section-title">Campaign Sessions</div>
+          <div class="row" style="gap:.4rem;">
+            <button id="btnNewCampaign" class="btn secondary tiny" type="button" title="New Campaign">+ Campaign</button>
+            <button id="btnToggleSessions" class="btn secondary tiny" type="button">Collapse</button>
+          </div>
+        </div>
+        <div class="muted" style="margin:.2rem 0 .6rem;">Campaigns act like folders. Rename inline.</div>
+        <div id="campaignTree" class="tree"></div>
+
+        <div class="row" style="margin-top:.75rem;">
+          <button id="btnNewSession" class="btn secondary" style="width:100%;">New Session</button>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="pill">Calm Mode</div>
+        <div class="small muted">Local prototype. No cloud.</div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="main">
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <div id="topTitle" class="top-title">Dashboard</div>
+          <div id="topMeta" class="top-meta">Campaign: <span id="campaignName">My Campaign</span> · Start a session.</div>
+        </div>
+
+        <div class="topbar-right">
+          <button id="btnUseSample" class="btn secondary">Use Sample Session</button>
+          <button id="btnExportMD" class="btn primary">Export .md</button>
+        </div>
+      </header>
+
+      <!-- Views -->
+      <main class="content">
+
+        <!-- Dashboard -->
+        <section class="view active" id="view-dashboard">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-title">Current Campaign</div>
+              <div class="muted" id="dashCampaignName">No campaign selected</div>
+
+              <div class="spacer"></div>
+
+              <div class="kpis">
+                <div class="kpi">
+                  <div class="kpi-label">Sessions</div>
+                  <div id="kpiSessions" class="kpi-value">0</div>
+                </div>
+                <div class="kpi">
+                  <div class="kpi-label">Open Threads</div>
+                  <div id="kpiThreads" class="kpi-value">0</div>
+                </div>
+                <div class="kpi">
+                  <div class="kpi-label">Entities</div>
+                  <div id="kpiEntities" class="kpi-value">0</div>
+                </div>
+              </div>
+
+              <div class="spacer"></div>
+
+              <button class="btn primary" data-goto="record">Record new session</button>
+              <button class="btn ghost" data-goto="session">Open active session</button>
+            </div>
+
+            <div class="card">
+              <div class="card-title">How it works</div>
+              <div class="muted">A campaign is your folder. Sessions live inside it. Your canon lives in Campaign Memory.</div>
+
+              <div class="spacer"></div>
+              <div class="row" style="gap:.5rem; flex-wrap:wrap;">
+                <button class="btn secondary" data-goto="search">Open Campaign Memory</button>
+                <button class="btn secondary" data-goto="settings">Transcription settings</button>
+              </div>
+
+              <div class="spacer"></div>
+              <div class="callout">
+                <div class="callout-title">Prototype note</div>
+                <div class="muted">Recording works in-browser. Transcription + organization is simulated so the UX is realistic and fast.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Record -->
+        <section class="view" id="view-record">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-title">Record Session Audio</div>
+              <div class="muted">Record, stop, then Arcane Archive “processes” the session into structured notes.</div>
+
+              <div class="spacer"></div>
+
+              <label class="label">Session title</label>
+              <input id="sessionTitle" class="input" placeholder="e.g., Session 13: Moonlit Bargain" />
+
+              <div class="spacer"></div>
+
+              <div class="record-panel">
+                <div class="record-meter">
+                  <div class="meter-bar"><div id="meterFill" class="meter-fill"></div></div>
+                  <div class="muted"><span id="recStatus">Idle</span> · <span id="recTime">00:00</span></div>
+                </div>
+
+                <div class="record-actions">
+                  <button id="btnRecord" class="btn primary">Record</button>
+                  <button id="btnPause" class="btn secondary" disabled>Pause</button>
+                  <button id="btnStop" class="btn secondary" disabled>Stop</button>
+                </div>
+
+                <audio id="playback" class="audio" controls hidden></audio>
+
+                <div class="spacer"></div>
+
+              
+
+              </div>
+
+              <div class="spacer"></div>
+
+              <div class="row">
+                <div class="pill">Human-in-the-loop</div>
+                <div class="pill">No action suggestions</div>
+                <div class="pill">Editable outputs</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">Upload / Drop Audio</div>
+              <div class="muted">Drag an audio file here or choose one. Arcane Archive will transcribe it and build a session you can review before saving.</div>
+
+              <div class="spacer"></div>
+
+              <div id="dropZone" class="drop-zone" tabindex="0">
+                <div class="drop-title">Drop audio file here</div>
+                <div class="drop-sub muted">or</div>
+                <button id="btnChooseFile" class="btn secondary" type="button">Choose file</button>
+                <input id="audioFileInput" type="file" accept="audio/*,.webm,.wav,.mp3,.m4a" hidden />
+              </div>
+
+              <div class="spacer"></div>
+              <div id="uploadStatus" class="muted">No file selected.</div>
+
+              <div class="spacer"></div>
+
+              <div class="callout">
+                <div class="callout-title">Heads up</div>
+                <div class="muted">Your audio stays on your machine when using the local transcription server. You can still edit everything before saving.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Processing -->
+        <section class="view" id="view-processing">
+          <div class="card">
+            <div class="card-title">Processing Session</div>
+            <div class="muted">Turning audio into structured memory.</div>
+
+            <div class="spacer"></div>
+
+            <div class="progress">
+              <div id="progressFill" class="progress-fill"></div>
+            </div>
+
+            <div class="spacer"></div>
+
+            <div class="steps">
+              <div class="step" id="step1">1. Prepare audio</div>
+              <div class="step" id="step2">2. Transcribe</div>
+              <div class="step" id="step3">3. Organize</div>
+              <div class="step" id="step4">4. Ready</div>
+            </div>
+
+            <div class="spacer"></div>
+
+            <div class="muted" id="processingHint">Starting…</div>
+          </div>
+        </section>
+
+        <!-- Session View -->
+        <section class="view" id="view-session">
+          <div class="session-header">
+            <div>
+              <div class="row" style="align-items:center; gap:.6rem;">
+  <div class="session-title" style="display:flex; align-items:center; gap:.6rem;">
+    <span id="sessionName" class="session-title" title="Click to rename" style="cursor:text;">Session</span>
+    <input id="sessionNameEdit" class="input" style="display:none; max-width: 420px;" />
+    <span id="pendingBadge" class="badge subtle" style="display:none;">Needs review</span>
+  </div>
+</div>
+              <div class="muted"><span id="sessionDate"></span></div>
+            </div>
+            <div class="row">
+              <button class="btn secondary" id="btnRenameSession" type="button">Rename</button>
+              <button class="btn secondary" id="btnSaveSession">Save</button>
+              <button class="btn secondary" id="btnClearSession">Delete Session</button>
+            </div>
+          </div>
+
+          <div class="grid-2 session-grid">
+            <!-- Transcript -->
+            <div class="card">
+              <div class="card-title">Transcript</div>
+              <div class="muted">Search + click entities/threads to jump and highlight.</div>
+
+              <div class="spacer"></div>
+
+              <input id="transcriptSearch" class="input" placeholder="Search transcript…" />
+              <div class="spacer"></div>
+
+              <div id="transcript" class="transcript"></div>
+            </div>
+
+            <!-- Organized -->
+            <div class="card">
+              <div class="tabs">
+                <button class="tab active" data-tab="summary">Summary</button>
+                <button class="tab" data-tab="characters">Characters</button>
+                <button class="tab" data-tab="locations">Locations</button>
+                <button class="tab" data-tab="factions">Factions</button>
+                <button class="tab" data-tab="threads">Threads</button>
+                <button class="tab" data-tab="timeline">Timeline</button>
+              </div>
+
+              <div class="panel active" id="panel-summary">
+                <div class="row">
+                  <span class="badge" id="badgeAIGenerated">AI-generated</span>
+                  <span class="badge subtle">Editable</span>
+                </div>
+                <div class="spacer"></div>
+                <div id="summaryBox" class="editable" contenteditable="true"></div>
+
+                <div class="spacer"></div>
+
+                <div class="callout">
+                  <div class="callout-title">Agency boundary</div>
+                  <div class="muted">This tool documents what happened. It never recommends what you should do next.</div>
+                </div>
+              </div>
+
+              <div class="panel" id="panel-characters">
+                <div class="muted">Click a name to highlight in transcript. Toggle Approved/Removed to control truth.</div>
+                <div class="spacer"></div>
+                <div id="characters" class="chip-grid"></div>
+              </div>
+
+              <div class="panel" id="panel-locations">
+                <div class="muted">Click a location to highlight in transcript. Toggle Approved/Removed to control truth.</div>
+                <div class="spacer"></div>
+                <div id="locations" class="chip-grid"></div>
+              </div>
+
+              <div class="panel" id="panel-factions">
+                <div class="muted">Click a faction to highlight in transcript. Add notes in Campaign Memory.</div>
+                <div class="spacer"></div>
+                <div id="factions" class="chip-grid"></div>
+              </div>
+
+              <div class="panel" id="panel-threads">
+                <div class="muted">Click a thread to jump to the transcript timestamp.</div>
+                <div class="spacer"></div>
+                <ul id="threads" class="thread-list"></ul>
+              </div>
+
+              <div class="panel" id="panel-timeline">
+                <div id="timeline" class="timeline"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Search -->
+        
+<section class="view" id="view-search">
+  <div class="grid-2">
+    <div class="card">
+      <div class="row" style="justify-content:space-between; align-items:center;">
+        <div>
+          <div class="card-title">Campaign Memory</div>
+          <div class="muted">Canon you control. AI can suggest, you decide what’s true.</div>
+        </div>
+        <button id="btnAddMemory" class="btn primary" type="button">Add</button>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="row" style="gap:.5rem;">
+        <select id="memoryType" class="input" style="max-width:220px;">
+          <option value="characters">Characters</option>
+          <option value="locations">Locations</option>
+          <option value="factions">Factions</option>
+        </select>
+        <input id="memorySearch" class="input" placeholder="Search in this campaign…" />
+      </div>
+
+      <div class="spacer"></div>
+
+      <div id="memoryResults" class="results"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Editor</div>
+      <div class="muted">Write your own notes. Link evidence as you go.</div>
+      <div class="spacer"></div>
+      <div id="memoryEditor" class="muted">Select an item to edit, or add a new one.</div>
+
+      <div class="spacer"></div>
+
+      <div class="callout">
+        <div class="callout-title">Agency boundary</div>
+        <div class="muted">AI never recommends actions or outcomes. It only helps you remember and organize.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+        <!-- Settings -->
+        <section class="view" id="view-settings">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Settings</div>
+      <div class="muted">Prototype toggles to communicate boundaries.</div>
+
+      <div class="spacer"></div>
+
+      <label class="toggle">
+        <input type="checkbox" id="settingLocalOnly" checked />
+        <span>Local-only mode (prototype)</span>
+      </label>
+
+      <label class="toggle">
+        <input type="checkbox" id="settingLabelAI" checked />
+        <span>Label AI-generated content</span>
+      </label>
+
+      <label class="toggle">
+        <input type="checkbox" id="settingRequireReview" checked />
+        <span>Require human review before save</span>
+      </label>
+
+      <div class="divider"></div>
+
+      <div class="card-title" style="margin-top:.25rem;">Transcription</div>
+      <div class="muted">Use your local server at <strong>localhost:8000</strong> (Whisper).</div>
+
+      <div class="spacer"></div>
+
+      <div class="row" style="justify-content:space-between; align-items:center;">
+        <label class="toggle" style="margin:0;">
+          <input type="checkbox" id="settingUseASR" />
+          <span>Use local AI transcription</span>
+        </label>
+
+        <span id="asrStatus" class="badge subtle">Unknown</span>
+      </div>
+
+      <div class="spacer"></div>
+
+      <button class="btn secondary" id="btnCheckASR" type="button">Check server status</button>
+
+      <div class="spacer"></div>
+
+      <div class="row" style="justify-content:space-between; align-items:center; gap:1rem;">
+        <div>
+          <div style="font-weight:800;">Transcription mode</div>
+          <div class="muted">Fast is quicker but less accurate. Accurate takes longer.</div>
+        </div>
+
+        <select id="settingASRMode" class="input" style="max-width:220px;">
+          <option value="fast">Fast</option>
+          <option value="accurate">Accurate</option>
+        </select>
+      </div>
+
+      <div class="spacer"></div>
+
+      <label class="toggle">
+        <input type="checkbox" id="settingWarnLarge" checked />
+        <span>Warn me before long transcriptions</span>
+      </label>
+
+      <div class="muted" style="margin-left: 2rem; margin-top: .25rem;">
+        If the file looks like ~60+ minutes (estimated from file size), you’ll get a confirmation prompt.
+        Tip: split into 15–30 minute chunks for smooth results.
+      </div>
+
+    </div>
+
+    <div class="card">
+      <div class="card-title">About</div>
+      <div class="muted">Arcane Archive is a memory and organization aid for tabletop RPG groups. It does not influence gameplay outcomes.</div>
+    </div>
+  </div>
+</section>
+
+      
+
+      </main>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <div class="footer-left">
+          <div class="footer-title">Arcane Archive</div>
+          <div class="muted">Calm-blue narrative memory prototype</div>
+        </div>
+        <div class="footer-right muted">
+          © 2026 All rights reserved by Ziona Agyemang
+        </div>
+      </footer>
+
+    </div>
+  </div>
+
+  <!-- Script order matters: app.js defines showView/state/render helpers used by pipeline -->
+  <script src="js/pipeline.js"></script>
+  <script src="js/export.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/recorder.js"></script>
+</body>
+</html>
