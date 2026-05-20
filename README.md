@@ -157,7 +157,7 @@ This project was built as part of a Human-Centered AI (HCAI) course research pro
 This project is featured in my portfolio as part of my work at the intersection of game design, AI-driven interfaces, and human-centered UX.
 
 **Portfolio:** [ziona-agyemang.com](https://ziona-agyemang.com)  
-**Project page:** [ziona-agyemang.com/projects/synaptic_drift](https://ziona-agyemang.com/projects/arcane_archive)
+**Project page:** [ziona-agyemang.com/projects/arcane_archive](https://ziona-agyemang.com/projects/arcane_archive)
 
 ---
 
